@@ -60,18 +60,23 @@ class InvitationTest {
 		invitation.revoke(T0, ADMIN);
 
 		assertThatThrownBy(() -> invitation.revoke(T0, ADMIN)).isInstanceOf(IllegalStateException.class);
-		assertThatThrownBy(() -> invitation.edit(KIM, T0, VALIDITY, ADMIN)).isInstanceOf(IllegalStateException.class);
+		assertThatThrownBy(() -> invitation.edit(KIM, T0, ADMIN)).isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
-	void editChangesContactAndSendsACorrectedLink() {
+	void editChangesTheDetailsButNotTheLink() {
 		Invitation invitation = issued();
 		var corrected = new DoctorContact("Dr. Kim Han-mi", "kim.hanmi@clinic.co.kr", "010-9999-5678");
 
-		invitation.edit(corrected, T0.plusSeconds(60), VALIDITY, ADMIN);
+		invitation.edit(corrected, T0.plusSeconds(60), ADMIN);
 
 		assertThat(invitation.getEmail()).isEqualTo("kim.hanmi@clinic.co.kr");
-		assertThat(invitation.getReissueCount()).isEqualTo(1);
+		assertThat(invitation.getMobile()).isEqualTo("010-9999-5678");
+		// Hi-Fi 1d: no new link — same dates, same re-issue count, still Pending
+		assertThat(invitation.getReissueCount()).isZero();
+		assertThat(invitation.getIssuedAt()).isEqualTo(T0);
+		assertThat(invitation.getExpiresAt()).isEqualTo(T0.plus(VALIDITY));
+		assertThat(invitation.getStatus()).isEqualTo(InvitationStatus.PENDING);
 		assertThat(invitation.getHistory()).extracting(InvitationHistory::getAction)
 			.containsExactly(HistoryAction.ISSUED, HistoryAction.EDITED);
 	}

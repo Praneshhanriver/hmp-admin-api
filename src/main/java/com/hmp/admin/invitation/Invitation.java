@@ -98,13 +98,14 @@ public class Invitation {
 		record(HistoryAction.REISSUED, actor, now);
 	}
 
-	// Edit (training extension): correct a Pending invitation and send a corrected link
-	public void edit(DoctorContact contact, Instant now, Duration validity, String actor) {
+	// Edit (training extension, Hi-Fi 1d): correct the recipient details of a Pending invitation.
+	// It does not send a new link — the link, its dates and the re-issue count stay the same (Re-issue does that)
+	public void edit(DoctorContact contact, Instant now, String actor) {
 		if (!status.canEdit()) {
 			throw new IllegalStateException("Only a pending invitation can be edited");
 		}
 		setContact(contact);
-		startNewLink(now, validity);
+		updatedAt = now;
 		record(HistoryAction.EDITED, actor, now);
 	}
 

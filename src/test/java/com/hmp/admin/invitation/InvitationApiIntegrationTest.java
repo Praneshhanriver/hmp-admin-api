@@ -86,7 +86,8 @@ class InvitationApiIntegrationTest {
 				.content(body("Dr. Kim Han-mi", "kim.hanmi@clinic.co.kr", "010-9999-5678")))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.mobile").value("010-9999-5678"))
-			.andExpect(jsonPath("$.reissueCount").value(1))
+			.andExpect(jsonPath("$.reissueCount").value(0)) // edit sends no new link
+			.andExpect(jsonPath("$.issuedAt").value("2026-10-07T10:00:00+09:00"))
 			.andExpect(jsonPath("$.history[*].action", contains("issued", "edited")));
 
 		mvc.perform(delete(API + "/" + id))
@@ -100,7 +101,7 @@ class InvitationApiIntegrationTest {
 		mvc.perform(post(API + "/" + id + "/reissue"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.status").value("pending"))
-			.andExpect(jsonPath("$.reissueCount").value(2));
+			.andExpect(jsonPath("$.reissueCount").value(1));
 	}
 
 	// ---- Validation: same rules and messages as the frontend form
@@ -111,8 +112,8 @@ class InvitationApiIntegrationTest {
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
 			.andExpect(jsonPath("$.errors[?(@.field=='doctorName')].message").value("Enter the doctor's name."))
-			.andExpect(jsonPath("$.errors[?(@.field=='email')].message").value("Enter an email address."))
-			.andExpect(jsonPath("$.errors[?(@.field=='mobile')].message").value("Enter a mobile number."));
+			.andExpect(jsonPath("$.errors[?(@.field=='email')].message").value("Enter a valid email address, e.g. name@clinic.co.kr."))
+			.andExpect(jsonPath("$.errors[?(@.field=='mobile')].message").value("Enter a Korean mobile number, e.g. 010-1234-5678."));
 	}
 
 	@Test
@@ -123,9 +124,9 @@ class InvitationApiIntegrationTest {
 			.andExpect(jsonPath("$.errors[?(@.field=='doctorName')].message")
 				.value("The doctor's name must be 2 to 50 characters."))
 			.andExpect(jsonPath("$.errors[?(@.field=='email')].message")
-				.value("Enter an email address in the format name@example.com."))
+				.value("Enter a valid email address, e.g. name@clinic.co.kr."))
 			.andExpect(jsonPath("$.errors[?(@.field=='mobile')].message")
-				.value("Enter a mobile number like 010-1234-5678."));
+				.value("Enter a Korean mobile number, e.g. 010-1234-5678."));
 
 		create("Dr. " + "a".repeat(47), "a".repeat(95) + "@x.com", "010-1234-5678")
 			.andExpect(jsonPath("$.errors[?(@.field=='doctorName')].message")

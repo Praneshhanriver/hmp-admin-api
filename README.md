@@ -41,7 +41,7 @@ Base path `/api/v1/admin/doctor-invitations`. Dates are ISO 8601 in Korean time 
 | GET | `?keyword=&status=&page=1&size=20` | List with search (name, or the **visible** contact digits), status filter, paging (1-based), newest first. Mobile comes masked | 200 page | 400 |
 | GET | `/{id}` | Detail + history (oldest first). Full contact, for the edit form | 200 | 404 |
 | POST | `` | Issue invitation → Pending, 14-day link | 201 + `Location` | 400, 409 |
-| PUT | `/{id}` | Edit a **Pending** invitation; sends a corrected link (re-issue count +1) | 200 | 400, 404, 409 |
+| PUT | `/{id}` | Edit a **Pending** invitation: updates name / email / mobile only — no new link, re-issue count and dates unchanged (Hi-Fi 1d) | 200 | 400, 404, 409 |
 | POST | `/{id}/reissue` | New link, back to Pending (not for Used) | 200 | 404, 409 |
 | DELETE | `/{id}` | **Delete = revoke** (spec p.113c: no hard delete). Pending only; the row stays as Revoked | 200 | 404, 409 |
 | GET | `/actuator/health` | Health check for Render | 200 | — |

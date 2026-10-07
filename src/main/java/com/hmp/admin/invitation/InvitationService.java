@@ -64,7 +64,7 @@ public class InvitationService {
 		}
 		DoctorContact contact = DoctorContact.from(request);
 		checkNotAlreadyInvited(contact.email(), id);
-		invitation.edit(contact, now(), properties.validity(), properties.adminActor());
+		invitation.edit(contact, now(), properties.adminActor());
 		return Detail.from(repository.saveAndFlush(invitation), properties.timeZone());
 	}
 

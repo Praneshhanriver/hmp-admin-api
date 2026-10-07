@@ -57,7 +57,7 @@ public class InvitationController {
 		return ResponseEntity.created(URI.create("/api/v1/admin/doctor-invitations/" + created.id())).body(created);
 	}
 
-	// Edit a Pending invitation (training extension): saves and sends a corrected link
+	// Edit a Pending invitation (training extension): updates the details only, no new link
 	@PutMapping("/{id}")
 	public Detail edit(@PathVariable long id, @Valid @RequestBody InvitationRequest request) {
 		return service.edit(id, request);
