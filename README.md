@@ -4,6 +4,9 @@ Spring Boot REST API behind the **Doctor Invitations** screens of the HMP Teleme
 (Admin ADM-003, spec p.113b / p.113c / p.113e). Built for the AI Frontend Training, Homework 2.
 Frontend: [hmp-admin-web](https://github.com/Praneshhanriver/hmp-admin-web).
 
+**Live:** <https://hmp-admin-api.onrender.com/api/v1/admin/doctor-invitations> · health <https://hmp-admin-api.onrender.com/actuator/health>
+(Render free tier: the first call after a quiet period can take about a minute). Web demo: <https://hmp-admin-web.vercel.app/doctors/invitations/list>
+
 **Stack:** Java 21 · Spring Boot 4.0 (Web MVC, Data JPA, Validation, Actuator) · H2 in memory · Flyway · JUnit 5 + MockMvc
 
 ## Run it
