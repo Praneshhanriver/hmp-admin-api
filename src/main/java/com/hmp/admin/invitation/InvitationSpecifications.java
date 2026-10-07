@@ -1,6 +1,7 @@
 package com.hmp.admin.invitation;
 
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -18,8 +19,12 @@ public final class InvitationSpecifications {
 		return (root, query, cb) -> status == null ? null : cb.equal(root.get("status"), status);
 	}
 
-	// Name contains the text (any case), or the visible mobile digits contain the typed digits.
-	// "kim" → name match; "5678" or "010-5678" → contact match; masked digits never match
+	// Text that looks like (part of) a phone number: digits, spaces and hyphens only
+	private static final Pattern PHONE_LIKE = Pattern.compile("^[\\d\\s-]*\\d[\\d\\s-]*$");
+
+	// Name contains the text (any case), or — only when the text looks like a phone number — the visible
+	// mobile digits contain the typed digits. "kim" → name; "5678" or "010-5678" → contact;
+	// "E2E" → name only (its "2" must not match contacts); masked digits never match
 	private static Specification<Invitation> matchesKeyword(String keyword) {
 		return (root, query, cb) -> {
 			String text = keyword == null ? "" : keyword.trim().toLowerCase(Locale.ROOT);
@@ -27,10 +32,10 @@ public final class InvitationSpecifications {
 				return null;
 			}
 			var nameMatch = cb.like(cb.lower(root.get("doctorName")), "%" + escapeLike(text) + "%", '\\');
-			String digits = MobileNumbers.digitsOnly(text);
-			if (digits.isEmpty()) {
+			if (!PHONE_LIKE.matcher(text).matches()) {
 				return nameMatch;
 			}
+			String digits = MobileNumbers.digitsOnly(text);
 			return cb.or(nameMatch, cb.like(root.get("mobileSearchDigits"), "%" + digits + "%"));
 		};
 	}

@@ -211,6 +211,15 @@ class InvitationApiIntegrationTest {
 	}
 
 	@Test
+	void digitsInsideANameAreNotAContactSearch() throws Exception {
+		create("Dr. E2E Test", "e2e@clinic.co.kr", "010-3333-1111");
+		create("Dr. Lee Seo-jun", "lee@clinic.co.kr", "010-2345-1234"); // visible digits 0101234 contain a "2"
+
+		mvc.perform(get(API).param("keyword", "E2E")).andExpect(jsonPath("$.content[*].doctorName", contains("Dr. E2E Test")));
+		mvc.perform(get(API).param("keyword", "010 1234")).andExpect(jsonPath("$.content[*].doctorName", contains("Dr. Lee Seo-jun")));
+	}
+
+	@Test
 	void filtersByStatusAndPagesNewestFirst() throws Exception {
 		for (int i = 1; i <= 5; i++) {
 			create("Dr. Doctor " + i, "doctor" + i + "@clinic.co.kr", "010-1000-000" + i);

@@ -88,10 +88,10 @@ src/main/resources/db/migration/   V1__create_invitation_tables.sql
 - `Clock` is a bean, so tests run with a fixed "now".
 - No login in the homework: admin actions are recorded as `admin@hmp.co.kr`.
 
-## Tests — 33, all passing (`./mvnw verify`)
+## Tests — 34, all passing (`./mvnw verify`)
 | Class | Kind | Covers |
 |---|---|---|
-| `InvitationApiIntegrationTest` (12) | Full HTTP → DB with MockMvc, fixed clock | create → list → edit → delete → re-issue; every validation message; 409 conflicts; 404; malformed JSON; search by name and visible digits only; status filter + paging; expiry job |
+| `InvitationApiIntegrationTest` (13) | Full HTTP → DB with MockMvc, fixed clock | create → list → edit → delete → re-issue; every validation message; 409 conflicts; 404; malformed JSON; search by name and visible digits only (digits inside a name are not a contact search); status filter + paging; expiry job |
 | `InvitationTest` (6) | Unit | Status rules and history of the entity |
 | `MobileNumbersTest` (14) | Unit | Accepted / rejected numbers, normalising, masking |
 | `HmpAdminApiApplicationTests` (1) | Start-up | Flyway schema matches the entities; 18 demo rows in every status |
