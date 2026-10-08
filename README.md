@@ -5,7 +5,7 @@ Spring Boot REST API behind the **Doctor Invitations** screens of the HMP Teleme
 Frontend: [hmp-admin-web](https://github.com/Praneshhanriver/hmp-admin-web).
 
 **Live:** <https://hmp-admin-api.onrender.com/api/v1/admin/doctor-invitations> · health <https://hmp-admin-api.onrender.com/actuator/health>
-(Render free tier: the first call after a quiet period can take about a minute). Web demo: <https://hmp-admin-web.vercel.app/doctors/invitations/list>
+(Render free tier: the first call after a quiet period can take up to about 3 minutes). Web demo: <https://hmp-admin-web.vercel.app/doctors/invitations/list>
 
 **Stack:** Java 21 · Spring Boot 4.0 (Web MVC, Data JPA, Validation, Actuator) · H2 in memory · Flyway · JUnit 5 + MockMvc
 
@@ -91,15 +91,21 @@ src/main/resources/db/migration/   V1__create_invitation_tables.sql
 - `Clock` is a bean, so tests run with a fixed "now".
 - No login in the homework: admin actions are recorded as `admin@hmp.co.kr`.
 
-## Tests — 34, all passing (`./mvnw verify`)
+## Tests — 36, all passing (`./mvnw verify`)
 | Class | Kind | Covers |
 |---|---|---|
 | `InvitationApiIntegrationTest` (13) | Full HTTP → DB with MockMvc, fixed clock | create → list → edit → delete → re-issue; every validation message; 409 conflicts; 404; malformed JSON; search by name and visible digits only (digits inside a name are not a contact search); status filter + paging; expiry job |
 | `InvitationTest` (6) | Unit | Status rules and history of the entity |
 | `MobileNumbersTest` (14) | Unit | Accepted / rejected numbers, normalising, masking |
 | `HmpAdminApiApplicationTests` (1) | Start-up | Flyway schema matches the entities; 18 demo rows in every status |
+| `DatabaseClosedGuardTest` (2) | Self-restart | Finds H2 "database has been closed" deep in the cause chain; ignores other errors |
 
 ## Deploy (Render, free)
 New → Web Service → this repo → Runtime **Docker** → env `CORS_ALLOWED_ORIGINS=https://<your-vercel-app>.vercel.app`
-→ Health check path `/actuator/health`. The free service sleeps when idle; the first call can take about a minute,
+→ Health check path `/actuator/health`. The free service sleeps when idle; the first call can take up to about 3 minutes,
 and a restart brings back the 18 demo invitations.
+
+**If the in-memory database closes** (seen on Render on 8 Oct: reads still worked, every create / edit / revoke
+answered 500 with `The database has been closed [90098]`), `DatabaseClosedGuard` logs it and stops the app with exit
+code 1, so Render starts a fresh instance. The image also runs with `-XX:+ExitOnOutOfMemoryError`, and H2 uses
+`DB_CLOSE_ON_EXIT=FALSE` so only Spring closes the database at shutdown.

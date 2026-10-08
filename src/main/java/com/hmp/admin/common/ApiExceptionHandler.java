@@ -32,6 +32,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
+	private final DatabaseClosedGuard databaseClosedGuard;
+
+	public ApiExceptionHandler(DatabaseClosedGuard databaseClosedGuard) {
+		this.databaseClosedGuard = databaseClosedGuard;
+	}
+
 	public record FieldMessage(String field, String message) {
 	}
 
@@ -51,6 +57,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	ResponseEntity<ProblemDetail> handleUnexpected(Exception ex) {
 		log.error("Unexpected error", ex);
+		databaseClosedGuard.check(ex);
 		return problem(ErrorCode.INTERNAL_ERROR, List.of());
 	}
 

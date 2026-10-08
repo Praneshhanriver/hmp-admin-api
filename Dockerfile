@@ -11,6 +11,7 @@ RUN ./mvnw -B -q package -DskipTests
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/hmp-admin-api-*.jar app.jar
-# Render sets $PORT; application.properties reads it (default 8080)
+# Render sets $PORT; application.properties reads it (default 8080).
+# Out of memory: stop the JVM so Render restarts it, instead of running on with a broken in-memory database
 EXPOSE 8080
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-XX:+ExitOnOutOfMemoryError", "-jar", "app.jar"]
