@@ -1,0 +1,23 @@
+# Keeps the Render free-tier demo awake for reviewers (QA review, 8 Oct): Render stops a free service after
+# 15 minutes without traffic and the next visitor waits up to 3 minutes. A health call every 10 minutes
+# prevents that. One always-on free service uses about 744 of the 750 free instance hours a month.
+# Note: GitHub pauses scheduled workflows in a repository with no activity for 60 days.
+name: Keep the demo API awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # every 10 minutes (GitHub may start a run a few minutes late)
+  workflow_dispatch: # run it by hand from the Actions tab
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call the health check
+        run: |
+          # --max-time covers a cold start; --retry covers a short network error
+          curl --fail --silent --show-error --max-time 200 --retry 2 --retry-delay 10 \
+            https://hmp-admin-api.onrender.com/actuator/health
