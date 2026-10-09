@@ -5,7 +5,8 @@ Spring Boot REST API behind the **Doctor Invitations** screens of the HMP Teleme
 Frontend: [hmp-admin-web](https://github.com/Praneshhanriver/hmp-admin-web).
 
 **Live:** <https://hmp-admin-api.onrender.com/api/v1/admin/doctor-invitations> · health <https://hmp-admin-api.onrender.com/actuator/health>
-(Render free tier: the first call after a quiet period can take up to about 3 minutes). Web demo: <https://hmp-admin-web.vercel.app/doctors/invitations/list>
+(Render free tier: a [keep-alive workflow](.github/workflows/keep-alive.yml) calls the health check every 10 minutes so
+the service does not sleep; if it was asleep anyway, the first call can take up to about 3 minutes). Web demo: <https://hmp-admin-web.vercel.app/doctors/invitations/list>
 
 **Stack:** Java 21 · Spring Boot 4.0 (Web MVC, Data JPA, Validation, Actuator) · H2 in memory · Flyway · JUnit 5 + MockMvc
 
